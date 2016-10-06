@@ -1,13 +1,25 @@
-﻿#args: $DataSource $Database $Filepath $DoCreate
+﻿<#
+    Title:       DatabaseScriptFull.ps1
+    Author:      Chris Harmon (much code borrowed from https://www.simple-talk.com/sql/database-administration/automated-script-generation-with-powershell-and-smo/)
+    Create Date: 2016-08-13
 
-#$args = '(local)', 'AdventureWorks2012', 'c:\temp', 1
+    Uses SMO to script out an entire database to a file which can be used to create a copy of the database.
+    
+    If $DoCreate = 1, after generating the database script, will use that script to create a new,
+    empty database on the same instance, with _TEST appended to the database name.
 
+    args: $DataSource $Database $Filepath $DoCreate
+#>
 
-$DataSource=$args[0] # server name and instance
-$Database=$args[1] # the database to copy from
-$Filepath=$args[2] # local directory to save build-scripts to
-$DoCreate=$args[3]
+#$args = '(local)', 'XDB', 'c:\temp', 1
+
+$DataSource='.\SQL2014' # server name and instance
+$Database='XDB' # the database to copy from
+$Filepath='C:\temp' # local directory to save build-scripts to
+$DoCreate=1
 $NewDatabase=$Database+'_TEST' # database to create as copy of $Database
+
+$TargetScriptName=$FilePath+'\'+$Database+'_Build.sql'
 
 "Generating script of database $Database..."
 
@@ -43,7 +55,8 @@ $CreationScriptOptions.AllowSystemObjects = $false
 $CreationScriptOptions.ChangeTracking = $true
 $CreationScriptOptions.Permissions = $true
 $CreationScriptOptions.IncludeDatabaseRoleMemberships = $true
-$CreationScriptOptions.Filename =  "$($FilePath)\$($Database)_Build.sql"; 
+$CreationScriptOptions.ScriptOwner = $true
+$CreationScriptOptions.Filename =  $TargetScriptName
 $transfer = new-object ("$My.Transfer") $s.Databases[$Database]
  
 $transfer.options=$CreationScriptOptions # tell the transfer object of our preferences
@@ -55,12 +68,37 @@ If ($DoCreate -eq 1) {
 $query = "
 IF DB_ID('$NewDatabase') IS NOT NULL
 BEGIN
-    ALTER DATABASE $NewDatabase SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE $NewDatabase;
+    ALTER DATABASE [$NewDatabase] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [$NewDatabase];
 END;
 GO
 
-CREATE DATABASE $NewDatabase;
+DECLARE @DataPath NVARCHAR(255) = (
+    SELECT LEFT(physical_name, LEN(physical_name) - CHARINDEX('\', REVERSE(physical_name)) + 1)
+    FROM [$Database].sys.database_files
+    WHERE type = 0
+);
+
+DECLARE @LogPath NVARCHAR(255) = (
+    SELECT LEFT(physical_name, LEN(physical_name) - CHARINDEX('\', REVERSE(physical_name)) + 1)
+    FROM [$Database].sys.database_files
+    WHERE type = 1
+);
+
+DECLARE @CreateSQL NVARCHAR(MAX) = 
+N'
+    CREATE DATABASE [$NewDatabase]
+        ON (NAME = [$NewDatabase], FILENAME = '''+@DataPath+'$NewDatabase.mdf'', SIZE = 64 MB, FILEGROWTH = 64 MB)
+    LOG ON (NAME = ["+$NewDatabase+"_Log], FILENAME = '''+@LogPath+'"+$NewDatabase+"_Log.ldf'', SIZE = 64 MB, FILEGROWTH = 64 MB)
+';
+
+EXEC (@CreateSQL);
+GO
+
+ALTER DATABASE [$NewDatabase] SET RECOVERY SIMPLE;
+GO
+
+ALTER AUTHORIZATION ON DATABASE::[$NewDatabase] TO sa;
 GO
 
 /* if Change Tracking is enabled on the source database, enable it on target database */
@@ -68,13 +106,13 @@ IF EXISTS (
     SELECT * FROM sys.change_tracking_databases
     WHERE database_id = DB_ID('$Database')
 )
-ALTER DATABASE $NewDatabase SET CHANGE_TRACKING = ON (AUTO_CLEANUP = ON, CHANGE_RETENTION = 7 DAYS);
+ALTER DATABASE [$NewDatabase] SET CHANGE_TRACKING = ON (AUTO_CLEANUP = ON, CHANGE_RETENTION = 7 DAYS);
 GO
 "
 Invoke-Sqlcmd -ServerInstance $DataSource -Database 'master' -Query $query
 
 # Run the script we just created against the new database
-Invoke-Sqlcmd -ServerInstance $DataSource -Database "$NewDatabase" -InputFile "$($FilePath)\$($Database)_Build.sql"
+Invoke-Sqlcmd -ServerInstance $DataSource -Database "$NewDatabase" -InputFile "$TargetScriptName"
 }
 
 

@@ -1,0 +1,9 @@
+3rd party/
+06_Login_Fix_All.sql
+CDX/Attachment size & growth analysis.sql
+Resotre CDX databases to SQLM11DEV.sql
+Restore XcelWebReport_Prod to dev.sql
+Restore XcelWeb_Prod to dev.sql
+Restore XcelWeb_Tenant to dev.sql
+XDB local database restore.sql
+XDB_LoadTest switch with XDB.sql
