@@ -22,5 +22,3 @@ ORDER BY Path
        , c.Name
 ;
 
-SELECT TOP 1 *
-FROM dbo.ExecutionLogStorage AS els
