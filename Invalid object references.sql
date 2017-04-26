@@ -1,5 +1,3 @@
-
-
 WITH    cteModules AS (
             SELECT  sm.object_id
                 ,   s.name AS SchemaName
@@ -16,7 +14,7 @@ WITH    cteModules AS (
             FROM    cteModules AS m
                     CROSS APPLY sys.dm_sql_referenced_entities(m.QualifiedName,'OBJECT') AS dsre
             WHERE   ISNULL(dsre.referenced_database_name,'') NOT IN (
-                        'DataStage'
+                        ''
                     )
     )
     ,   cteFinal AS (
@@ -30,7 +28,7 @@ WITH    cteModules AS (
                         WHERE   o.name = r.referenced_entity_name
                             --AND (r.referenced_schema_name IS NULL OR s.name = r.referenced_schema_name)
                     )
-                AND r.referenced_entity_name NOT IN ('Company_User')
+                AND r.referenced_entity_name = ''
             UNION ALL
             SELECT  *
             FROM    cteReferences AS r
