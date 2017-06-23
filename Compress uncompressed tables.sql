@@ -3,8 +3,11 @@
 SELECT
     s.name AS SchemaName
 ,   t.name AS TableName
-,   [SQL] = 'ALTER TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name)
-    + ' REBUILD WITH (DATA_COMPRESSION = ROW)'
+,   [SQL] = 'RAISERROR(''Compressing table ' + + QUOTENAME(s.name) + '.' + QUOTENAME(t.name) + '...'',0,1) WITH NOWAIT;'+CHAR(13)+CHAR(10)
+    + 'ALTER TABLE ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name)
+    + ' REBUILD WITH (DATA_COMPRESSION = ROW);'+CHAR(13)+CHAR(10)+'GO'+CHAR(13)+CHAR(10)
+    + 'ALTER INDEX ALL ON ' + QUOTENAME(s.name) + '.' + QUOTENAME(t.name)
+    + ' REBUILD WITH (DATA_COMPRESSION = ROW);'+CHAR(13)+CHAR(10)+'GO'+CHAR(13)+CHAR(10)
 FROM sys.tables AS t
     JOIN sys.schemas AS s ON s.schema_id = t.schema_id
 WHERE EXISTS (
@@ -17,6 +20,4 @@ WHERE EXISTS (
 ORDER BY s.name, t.name
 ;
 
-SELECT TOP 100
-    *
-FROM sys.partitions AS p
+sp_help 'branch'
