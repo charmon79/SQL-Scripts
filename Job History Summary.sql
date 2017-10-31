@@ -29,7 +29,7 @@ WITH cteJobHistory AS (
     ,   ROW_NUMBER() OVER (PARTITION BY jh.job_id ORDER BY jh.run_date DESC, jh.run_time DESC) AS LastRun
     FROM
         msdb.dbo.sysjobs AS j
-        JOIN msdb.dbo.sysjobhistory AS jh ON jh.job_id = j.job_id
+        LEFT JOIN msdb.dbo.sysjobhistory AS jh ON jh.job_id = j.job_id
 )
 ,   cteJobLastRun AS (
     SELECT

@@ -1,4 +1,4 @@
-USE XcelWeb_Prod_TEST;
+--USE XcelWeb_Prod_TEST;
 
 --sp_whoisactive
 
@@ -72,9 +72,21 @@ WITH    cteAllocationUnits AS (
     FROM sys.allocation_units AS au
     WHERE au.container_id = 0
 )
-SELECT TOP 100
-    *
+--SELECT TOP 100
+--    *
+--FROM
+--    cteAllocationUnits
+--ORDER BY
+--    cteAllocationUnits.UsedMB DESC
+SELECT
+    SchemaName
+,   ObjectName
+,   SUM(TotalMB) AS SizeMB
 FROM
     cteAllocationUnits
+GROUP BY
+    SchemaName
+,   ObjectName
 ORDER BY
-    cteAllocationUnits.UsedMB DESC
+    SizeMB DESC
+;
