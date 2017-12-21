@@ -1,22 +1,21 @@
+USE ODS
+
 SELECT
-        d.name AS DatabaseName
-    ,   mf.type
-    ,   mf.type_desc
-    ,   mf.name AS FileLogicalName
-    ,   mf.physical_name AS FilePhysicalName
-    ,   mf.size
-    ,   (mf.size * 8.0) / 1048576 AS SizeGB
-    ,   (FILEPROPERTY(mf.name, 'SpaceUsed') * 8.0) / 1048576 AS UsedGB
-FROM    sys.master_files AS mf
-        INNER JOIN sys.databases AS d ON d.database_id = mf.database_id
+        DB_NAME() AS DatabaseName
+    ,   df.type
+    ,   df.type_desc
+    ,   df.name AS FileLogicalName
+    ,   df.physical_name AS FilePhysicalName
+    ,   df.size
+    ,   (df.size * 8.0) / 1048576 AS SizeGB
+    ,   (FILEPROPERTY(df.name, 'SpaceUsed') * 8.0) / 1048576 AS UsedGB
+FROM    sys.database_files AS df
 WHERE   1=1
-    --AND mf.type = 1
-    --AND mf.size > 128000
-    AND d.name = 'CommercialSearchStage'
+    --AND df.type = 1
+    --AND df.size > 128000
 ORDER BY
-        d.name
-    ,   mf.type
-    ,   mf.name
+        df.type
+    ,   df.name
 ;
 
 
