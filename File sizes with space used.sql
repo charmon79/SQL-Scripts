@@ -1,4 +1,4 @@
-USE ODS
+USE tempdb;
 
 SELECT
         DB_NAME() AS DatabaseName
@@ -9,6 +9,8 @@ SELECT
     ,   df.size
     ,   (df.size * 8.0) / 1048576 AS SizeGB
     ,   (FILEPROPERTY(df.name, 'SpaceUsed') * 8.0) / 1048576 AS UsedGB
+	,	df.growth
+	,	df.is_percent_growth
 FROM    sys.database_files AS df
 WHERE   1=1
     --AND df.type = 1
@@ -17,5 +19,3 @@ ORDER BY
         df.type
     ,   df.name
 ;
-
-
