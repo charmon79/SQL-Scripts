@@ -1,7 +1,6 @@
 USE [DBAdmin]
 GO
 
-/****** Object:  Table [dbo].[WaitStats]    Script Date: 7/19/2018 2:39:53 PM ******/
 SET ANSI_NULLS ON
 GO
 

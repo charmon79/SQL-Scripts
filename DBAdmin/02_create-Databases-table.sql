@@ -1,8 +1,6 @@
 USE DBAdmin;
 GO
 
---DROP TABLE IF EXISTS dbo.Databases
-
 IF OBJECT_ID('dbo.Databases') IS NULL
 CREATE TABLE dbo.Databases (
 	DatabaseID int not null

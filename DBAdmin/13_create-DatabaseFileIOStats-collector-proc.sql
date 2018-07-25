@@ -21,13 +21,10 @@ BEGIN
 	,	Reads bigint not null
 	,	BytesRead bigint not null
 	,	ReadStall_ms bigint not null
-	--,	AvgReadLatency_s decimal(10,6) null
 	,	Writes bigint not null
 	,	BytesWritten bigint not null
 	,	WriteStall_ms bigint not null
-	--,	AvgWriteLatency_s decimal(10,6) null
 	,	TotalStall_ms bigint not null
-	--,	AvgOverallLatency_s decimal(10,6) null
 	);
 
 	CREATE TABLE #sample2
@@ -40,13 +37,10 @@ BEGIN
 	,	Reads bigint not null
 	,	BytesRead bigint not null
 	,	ReadStall_ms bigint not null
-	--,	AvgReadLatency_s decimal(10,6) null
 	,	Writes bigint not null
 	,	BytesWritten bigint not null
 	,	WriteStall_ms bigint not null
-	--,	AvgWriteLatency_s decimal(10,6) null
 	,	TotalStall_ms bigint not null
-	--,	AvgOverallLatency_s decimal(10,6) null
 	);
 
 
@@ -145,5 +139,4 @@ BEGIN
 
 END;
 GO
-
 

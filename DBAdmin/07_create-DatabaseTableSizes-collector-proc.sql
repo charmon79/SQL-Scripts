@@ -14,7 +14,7 @@ BEGIN;
 	DECLARE @databaseName sysname;
 
 
-	DECLARE cur_DB CURSOR LOCAL FAST_FORWARD FOR  -- TODO: make this cursor
+	DECLARE cur_DB CURSOR LOCAL FAST_FORWARD FOR
 		SELECT
 			name
 		FROM

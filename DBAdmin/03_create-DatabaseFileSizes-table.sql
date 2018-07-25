@@ -1,8 +1,6 @@
 USE DBAdmin;
 GO
 
---DROP TABLE IF EXISTS dbo.DatabaseFileSizes;
-
 IF OBJECT_ID('dbo.DatabaseFileSizes') IS NULL
 CREATE TABLE dbo.DatabaseFileSizes (
 	CollectedTime datetime not null

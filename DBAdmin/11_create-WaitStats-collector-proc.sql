@@ -1,8 +1,6 @@
 USE DBAdmin;
 GO
 
--- exec dbo.Collect_WaitStats '00:00:10'
-
 IF OBJECT_ID('dbo.Collect_WaitStats') IS NULL
 	EXEC('CREATE PROCEDURE dbo.Collect_WaitStats AS RETURN')
 GO
@@ -13,7 +11,7 @@ AS
 SET NOCOUNT ON;
 
 /*============================================================================
-  File:     ShortPeriodWaitStats.sql
+  File:     ShortPeriodWaitStats.sql (based on)
   
   Summary:  Short snapshot of wait stats
   

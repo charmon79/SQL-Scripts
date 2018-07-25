@@ -65,4 +65,6 @@ BEGIN
 		,	LastUserAccessTime = NULL
 	;
 
-END
+END;
+
+GO
