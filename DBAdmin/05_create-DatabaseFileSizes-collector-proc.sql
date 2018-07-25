@@ -28,7 +28,7 @@ BEGIN
 			USE '+quotename(@databaseName)+N';
 			SELECT
 					GETDATE() AS CollectedTime
-				,	DB_ID() AS DatabaseID
+				,	DB_NAME() AS DatabaseName
 				,   df.type
 				,   df.type_desc AS TypeDesc
 				,	ds.name AS FileGroupName

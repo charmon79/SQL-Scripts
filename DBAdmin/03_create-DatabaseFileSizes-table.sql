@@ -4,7 +4,7 @@ GO
 IF OBJECT_ID('dbo.DatabaseFileSizes') IS NULL
 CREATE TABLE dbo.DatabaseFileSizes (
 	CollectedTime datetime not null
-,	DatabaseID int not null CONSTRAINT FK_DatabaseFileSizes_Databases FOREIGN KEY REFERENCES dbo.Databases (DatabaseID)
+,	DatabaseName sysname not null
 ,	Type tinyint not null
 ,	TypeDesc nvarchar(60) NOT NULL
 ,	FileGroupName sysname null
@@ -15,5 +15,5 @@ CREATE TABLE dbo.DatabaseFileSizes (
 ,	FreeMB AS SizeMB - UsedMB PERSISTED
 );
 
-ALTER TABLE dbo.DatabaseFileSizes ADD CONSTRAINT PK_DatabaseFileSizes PRIMARY KEY CLUSTERED (CollectedTime, DatabaseID, Type, FileName);
+ALTER TABLE dbo.DatabaseFileSizes ADD CONSTRAINT PK_DatabaseFileSizes PRIMARY KEY CLUSTERED (CollectedTime, DatabaseName, Type, FileName);
 GO

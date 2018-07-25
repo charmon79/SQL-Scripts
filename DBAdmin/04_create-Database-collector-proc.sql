@@ -13,8 +13,7 @@ BEGIN
 
 	WITH DatabaseSummary AS (
 		SELECT
-			d.database_id AS DatabaseID
-		,	d.name AS DatabaseName
+			d.name AS DatabaseName
 		,	d.create_date AS Created
 		,	d.state_desc AS StateDesc
 		,	CASE WHEN d.state = 0 THEN GETDATE() ELSE NULL END AS LastSeenOnline
@@ -38,20 +37,18 @@ BEGIN
 		SET
 			Created = src.Created
 		,	StateDesc = src.StateDesc
-		,	LastSeenOnline = src.LastSeenOnline
+		,	LastSeenOnline = ISNULL(src.LastSeenOnline, tgt.LastSeenOnline)
 		,	IsReadOnly = src.IsReadOnly
 		,	LastUserAccessTime = src.LastUserAccessTime
 	WHEN NOT MATCHED BY TARGET THEN INSERT (
-			DatabaseID
-		,	DatabaseName
+			DatabaseName
 		,	Created
 		,	StateDesc
 		,	LastSeenOnline
 		,	IsReadOnly
 		,	LastUserAccessTime
 		) VALUES (
-			src.DatabaseID
-		,	src.DatabaseName
+			src.DatabaseName
 		,	src.Created
 		,	src.StateDesc
 		,	src.LastSeenOnline

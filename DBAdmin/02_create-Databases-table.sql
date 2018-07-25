@@ -3,8 +3,7 @@ GO
 
 IF OBJECT_ID('dbo.Databases') IS NULL
 CREATE TABLE dbo.Databases (
-	DatabaseID int not null
-,	DatabaseName sysname not null
+	DatabaseName sysname not null
 ,	Created datetime not null
 ,	StateDesc nvarchar(60) not null
 ,	LastSeenOnline datetime not null
@@ -13,5 +12,5 @@ CREATE TABLE dbo.Databases (
 );
 GO
 
-ALTER TABLE dbo.Databases ADD CONSTRAINT PK_Databases PRIMARY KEY CLUSTERED (DatabaseID);
+ALTER TABLE dbo.Databases ADD CONSTRAINT PK_Databases PRIMARY KEY CLUSTERED (DatabaseName);
 GO

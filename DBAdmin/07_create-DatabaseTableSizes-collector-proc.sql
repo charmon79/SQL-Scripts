@@ -94,7 +94,6 @@ BEGIN;
 							OBJECT_NAME(agg.[ObjectID])
 				)
 				SELECT GETDATE() AS CollectionTime,
-					   DB_ID() AS DatabaseID,
 					   DB_NAME() AS DatabaseName,
 					   sp.SchemaName,
 					   sp.TableName,

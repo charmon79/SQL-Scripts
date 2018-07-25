@@ -14,7 +14,6 @@ BEGIN
 	CREATE TABLE #sample1
 	(
 		CollectionTime datetime not null
-	,	DatabaseID int not null
 	,	DatabaseName sysname not null
 	,	FileName sysname not null
 	,	Sample_ms bigint not null
@@ -30,7 +29,6 @@ BEGIN
 	CREATE TABLE #sample2
 	(
 		CollectionTime datetime not null
-	,	DatabaseID int not null
 	,	DatabaseName sysname not null
 	,	FileName sysname not null
 	,	Sample_ms bigint not null
@@ -57,7 +55,6 @@ BEGIN
 		INSERT INTO #sample1
 		SELECT
 			GETDATE() AS CollectionTime
-		,	d.database_id AS DatabaseID
 		,	d.name AS DatabaseName
 		,	mf.name AS FileName
 		,	vfs.sample_ms AS Sample_ms
@@ -79,7 +76,6 @@ BEGIN
 		INSERT INTO #sample2
 		SELECT
 			GETDATE() AS CollectionTime
-		,	d.database_id AS DatabaseID
 		,	d.name AS DatabaseName
 		,	mf.name AS FileName
 		,	vfs.sample_ms AS Sample_ms
@@ -99,7 +95,6 @@ BEGIN
 		WITH DeltaCalculator AS (
 			SELECT
 				s2.CollectionTime
-			,	s2.DatabaseID
 			,	s2.DatabaseName
 			,	s2.FileName
 			,	s2.Sample_ms - s1.Sample_ms AS Sample_ms
@@ -117,7 +112,6 @@ BEGIN
 		INSERT INTO dbo.DatabaseFileIOStats
 		SELECT
 			CollectionTime
-		,	DatabaseID
 		,	DatabaseName
 		,	FileName
 		,	Sample_ms
