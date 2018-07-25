@@ -18,7 +18,10 @@ BEGIN;
 		SELECT
 			name
 		FROM
-			sys.databases;
+			sys.databases
+		WHERE
+			state = 0 -- ONLINE (all other database statuses will fail this query)
+	;
 
 	OPEN cur_DB;
 	FETCH NEXT FROM cur_DB INTO @databaseName;
@@ -93,7 +96,7 @@ BEGIN;
 							OBJECT_SCHEMA_NAME(agg.[ObjectID]),
 							OBJECT_NAME(agg.[ObjectID])
 				)
-				SELECT GETDATE() AS CollectionTime,
+				SELECT GETDATE() AS CollectedTime,
 					   DB_NAME() AS DatabaseName,
 					   sp.SchemaName,
 					   sp.TableName,

@@ -4,7 +4,8 @@ GO
 IF OBJECT_ID('dbo.DatabaseFileIOStats') IS NULL
 CREATE TABLE dbo.DatabaseFileIOStats
 (
-	CollectionTime datetime not null
+	PeriodStart datetime not null
+,	PeriodEnd datetime not null
 ,	DatabaseName sysname not null
 ,	FileName sysname not null
 ,	Sample_ms bigint not null
@@ -20,5 +21,5 @@ CREATE TABLE dbo.DatabaseFileIOStats
 ,	AvgOverallLatency_s decimal(10,6) null
 );
 
-ALTER TABLE dbo.DatabaseFileIOStats ADD CONSTRAINT PK_DatabaseFileIOStats PRIMARY KEY CLUSTERED (CollectionTime, DatabaseName, FileName);
+ALTER TABLE dbo.DatabaseFileIOStats ADD CONSTRAINT PK_DatabaseFileIOStats PRIMARY KEY CLUSTERED (PeriodStart, DatabaseName, FileName);
 GO

@@ -5,11 +5,11 @@ IF OBJECT_ID('dbo.WhoIsActiveStats') IS NULL
 CREATE TABLE dbo.WhoIsActiveStats
 (
  [collection_time]       DATETIME NOT NULL,
- [session_id]            SMALLINT NOT NULL, 
+ [session_id]            INT NOT NULL, 
  [elapsed_time_s]		 INT NOT NULL,
  [status]                VARCHAR(30) NOT NULL,
- [blocking_session_id]   SMALLINT NULL, 
- [blocked_session_count] SMALLINT NULL, 
+ [blocking_session_id]   INT NULL, 
+ [blocked_session_count] INT NULL, 
  [wait_info]             NVARCHAR(4000) NULL, 
  [database_name]         NVARCHAR(128) NULL, 
  [host_name]             NVARCHAR(128) NULL, 
@@ -27,7 +27,7 @@ CREATE TABLE dbo.WhoIsActiveStats
  [query_plan]            XML NULL, 
  [used_memory]           BIGINT NOT NULL, 
  [tran_start_time]       DATETIME NULL, 
- [open_tran_count]       SMALLINT NULL, 
+ [open_tran_count]       INT NULL, 
  [percent_complete]      REAL NULL, 
  [additional_info]       XML NULL, 
  [start_time]            DATETIME NOT NULL, 

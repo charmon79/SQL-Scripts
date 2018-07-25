@@ -4,7 +4,7 @@ GO
 IF OBJECT_ID('dbo.DatabaseTableSizes') IS NULL
 CREATE TABLE dbo.DatabaseTableSizes
 (
-	CollectionTime DATETIME NOT NULL
+	CollectedTime DATETIME NOT NULL
 ,	DatabaseName sysname NOT NULL
 ,	SchemaName sysname NOT NULL
 ,	TableName sysname NOT NULL
@@ -17,5 +17,5 @@ CREATE TABLE dbo.DatabaseTableSizes
 ,	ObjectType NVARCHAR(60) NOT NULL
 );
 
-ALTER TABLE dbo.DatabaseTableSizes ADD CONSTRAINT PK_DatabaseTableSizes PRIMARY KEY CLUSTERED (CollectionTime, DatabaseName, SchemaName, TableName);
+ALTER TABLE dbo.DatabaseTableSizes ADD CONSTRAINT PK_DatabaseTableSizes PRIMARY KEY CLUSTERED (CollectedTime, DatabaseName, SchemaName, TableName);
 GO

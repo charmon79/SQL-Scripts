@@ -13,9 +13,9 @@ BEGIN
 
 	CREATE TABLE #sample1
 	(
-		CollectionTime datetime not null
-	,	DatabaseName sysname not null
-	,	FileName sysname not null
+		CollectedTime datetime not null
+	,	DatabaseID int not null
+	,	FileID int not null
 	,	Sample_ms bigint not null
 	,	Reads bigint not null
 	,	BytesRead bigint not null
@@ -28,9 +28,9 @@ BEGIN
 
 	CREATE TABLE #sample2
 	(
-		CollectionTime datetime not null
-	,	DatabaseName sysname not null
-	,	FileName sysname not null
+		CollectedTime datetime not null
+	,	DatabaseID int not null
+	,	FileID int not null
 	,	Sample_ms bigint not null
 	,	Reads bigint not null
 	,	BytesRead bigint not null
@@ -54,10 +54,10 @@ BEGIN
 
 		INSERT INTO #sample1
 		SELECT
-			GETDATE() AS CollectionTime
-		,	d.name AS DatabaseName
-		,	mf.name AS FileName
-		,	vfs.sample_ms AS Sample_ms
+			GETDATE() AS CollectedTime
+		,	vfs.database_id AS DatabaseID
+		,	vfs.file_id AS FileID
+		,	CASE WHEN vfs.sample_ms < 0 THEN CAST(vfs.sample_ms AS BIGINT) + 2147483647 + 2147483647 ELSE CAST(vfs.sample_ms AS bigint) END AS Sample_ms -- because SQL 2008 uses INT and rolls over to min int
 		,	vfs.num_of_reads AS Reads
 		,	vfs.num_of_bytes_read AS BytesRead
 		,	vfs.io_stall_read_ms AS ReadStall_ms
@@ -66,19 +66,17 @@ BEGIN
 		,	vfs.io_stall_write_ms AS WriteStall_ms
 		,	vfs.io_stall AS TotalStall_ms
 		FROM
-			sys.databases AS d
-			JOIN sys.master_files AS mf ON mf.database_id = d.database_id
-			CROSS APPLY sys.dm_io_virtual_file_stats(d.database_id, mf.file_id) AS vfs
+			sys.dm_io_virtual_file_stats(null, null) AS vfs
 		;
 
 		WAITFOR DELAY @TimeInterval;
 
 		INSERT INTO #sample2
 		SELECT
-			GETDATE() AS CollectionTime
-		,	d.name AS DatabaseName
-		,	mf.name AS FileName
-		,	vfs.sample_ms AS Sample_ms
+			GETDATE() AS CollectedTime
+		,	vfs.database_id AS DatabaseID
+		,	vfs.file_id AS FileID
+		,	CASE WHEN vfs.sample_ms < 0 THEN CAST(vfs.sample_ms AS BIGINT) + 2147483647 + 2147483647 ELSE CAST(vfs.sample_ms AS bigint) END AS Sample_ms
 		,	vfs.num_of_reads AS Reads
 		,	vfs.num_of_bytes_read AS BytesRead
 		,	vfs.io_stall_read_ms AS ReadStall_ms
@@ -87,16 +85,15 @@ BEGIN
 		,	vfs.io_stall_write_ms AS WriteStall_ms
 		,	vfs.io_stall AS TotalStall_ms
 		FROM
-			sys.databases AS d
-			JOIN sys.master_files AS mf ON mf.database_id = d.database_id
-			CROSS APPLY sys.dm_io_virtual_file_stats(d.database_id, mf.file_id) AS vfs
+			sys.dm_io_virtual_file_stats(null, null) AS vfs
 		;
 
 		WITH DeltaCalculator AS (
 			SELECT
-				s2.CollectionTime
-			,	s2.DatabaseName
-			,	s2.FileName
+				s1.CollectedTime AS PeriodStart
+			,	s2.CollectedTime AS PeriodEnd
+			,	d.name AS DatabaseName
+			,	mf.name AS FileName
 			,	s2.Sample_ms - s1.Sample_ms AS Sample_ms
 			,	s2.Reads - s1.Reads AS Reads
 			,	s2.BytesRead - s1.BytesRead AS BytesRead
@@ -107,11 +104,14 @@ BEGIN
 			,	s2.TotalStall_ms - s1.TotalStall_ms AS TotalStall_ms
 			FROM
 				#sample1 AS s1
-				JOIN #sample2 AS s2 ON s2.DatabaseID = s1.DatabaseID AND s2.FileName = s1.FileName
+				JOIN #sample2 AS s2 ON s2.DatabaseID = s1.DatabaseID AND s2.FileID = s1.FileID
+				JOIN sys.databases AS d ON d.database_id = s2.DatabaseID
+				JOIN sys.master_files AS mf ON mf.database_id = s2.DatabaseID AND mf.file_id = s2.FileID
 		)
 		INSERT INTO dbo.DatabaseFileIOStats
 		SELECT
-			CollectionTime
+			PeriodStart
+		,	PeriodEnd
 		,	DatabaseName
 		,	FileName
 		,	Sample_ms
@@ -133,4 +133,3 @@ BEGIN
 
 END;
 GO
-

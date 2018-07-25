@@ -17,14 +17,13 @@ DECLARE @jobId BINARY(16)
 EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'Collect Wait Stats', 
 		@enabled=1, 
 		@notify_level_eventlog=0, 
-		@notify_level_email=2, 
+		@notify_level_email=0, 
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
 		@description=N'Collects wait stats accounting for 95% of waits on the instance to a table. Because the sys.dm_os_wait_stats DMV contains cumulative wait stats since the instance started up, this collector captures wait stats, waits a period of time, captures wait stats again, and computes the delta so that we can see wait stats at a finer time granularity and look for unusual spikes during the day.', 
 		@category_name=N'Data Collector', 
-		@owner_login_name=N'sa', 
-		@notify_email_operator_name=N'Alert Ops Critical', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [collect wait stats]    Script Date: 7/24/2018 1:04:30 PM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'collect wait stats', 

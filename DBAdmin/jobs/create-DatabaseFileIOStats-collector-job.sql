@@ -17,14 +17,13 @@ DECLARE @jobId BINARY(16)
 EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'Collect Database File IO Stats', 
 		@enabled=1, 
 		@notify_level_eventlog=0, 
-		@notify_level_email=2, 
+		@notify_level_email=0, 
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
 		@description=N'Collects file I/O statistics for each file in each database at periodic intervals. Because the sys.dm_io_virtual_file_stats DMF contains cumulative stats since the instance started up, this collector captures I/O stats, waits a period of time, captures I/O stats again, and computes the delta so that we can see I/O stats at a finer time granularity and look for unusual spikes during the day.', 
 		@category_name=N'Data Collector', 
-		@owner_login_name=N'sa', 
-		@notify_email_operator_name=N'Alert Ops Critical', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Collect Database File I/O Stats]    Script Date: 7/24/2018 1:55:16 PM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Collect Database File I/O Stats', 
