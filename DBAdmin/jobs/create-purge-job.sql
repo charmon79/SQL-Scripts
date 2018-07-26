@@ -36,7 +36,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge Da
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC dbo.Purge_DatabaseFileIOStats @RetentionPeriodDays = 120;', 
+		@command=N'EXEC dbo.Purge_DatabaseFileIOStats @RetentionPeriodDays = 90;', 
 		@database_name=N'DBAdmin', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
@@ -51,7 +51,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge Da
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC dbo.Purge_DatabaseFileSizes  @RetentionPeriodDays = 120;', 
+		@command=N'EXEC dbo.Purge_DatabaseFileSizes  @RetentionPeriodDays = 90;', 
 		@database_name=N'DBAdmin', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
@@ -66,7 +66,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge Da
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC dbo.Purge_DatabaseTableSizes  @RetentionPeriodDays = 120;', 
+		@command=N'EXEC dbo.Purge_DatabaseTableSizes  @RetentionPeriodDays = 90;', 
 		@database_name=N'DBAdmin', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
@@ -81,7 +81,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge Wa
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC dbo.Purge_WaitStats  @RetentionPeriodDays = 120;', 
+		@command=N'EXEC dbo.Purge_WaitStats  @RetentionPeriodDays = 90;', 
 		@database_name=N'DBAdmin', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
@@ -96,7 +96,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge Wh
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'TSQL', 
-		@command=N'EXEC dbo.Purge_WhoIsActive  @RetentionPeriodDays = 120;', 
+		@command=N'EXEC dbo.Purge_WhoIsActive  @RetentionPeriodDays = 2;', 
 		@database_name=N'DBAdmin', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
