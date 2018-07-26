@@ -6,14 +6,14 @@ SELECT
 ,   d.state_desc
 ,   (mf.size * 8.0) / 1024.0 AS SizeMB
 ,   CASE mf.max_size
-        WHEN-1
+        WHEN -1
             THEN 'unlimited'
-        ELSE LTRIM(STR((mf.max_size * 8.0) / 1024))
+        ELSE CONVERT(VARCHAR(20), (mf.max_size * 8.0) / 1024)
     END AS MaxSizeMB
 ,   CASE
         WHEN mf.is_percent_growth = 1
-            THEN CONCAT(mf.growth, '%')
-        ELSE CONCAT(LTRIM(STR((mf.growth * 8.0) / 1024.0)), ' MB')
+            THEN CONVERT(VARCHAR(20), mf.growth) + '%'
+        ELSE CONVERT(VARCHAR(20), (mf.growth * 8.0) / 1024.0) + ' MB'
     END AS Growth
 ,   d.recovery_model_desc
 FROM
