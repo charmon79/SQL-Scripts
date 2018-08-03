@@ -1,10 +1,14 @@
-USE DBAdmin;
+USE [DBAdmin]
 GO
 
-IF OBJECT_ID('dbo.Collect_WhoIsActive') IS NULL
-	EXEC('CREATE PROCEDURE dbo.Collect_WhoIsActive AS RETURN');
+/****** Object:  StoredProcedure [dbo].[Collect_WhoIsActive]    Script Date: 7/30/2018 10:08:40 AM ******/
+SET ANSI_NULLS ON
 GO
-ALTER PROCEDURE dbo.Collect_WhoIsActive
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[Collect_WhoIsActive]
 AS
 
 BEGIN
@@ -59,40 +63,73 @@ BEGIN
 	,	@destination_table = '#ResultsTemp'
 	;
 
-	INSERT INTO dbo.WhoIsActiveStats
-	SELECT
-		collection_time
-	,	DATEDIFF(second, start_time, collection_time) AS elapsed_time_s
-	,	session_id
-	,	[status]
-	,	blocking_session_id
-	,	blocked_session_count
-	,	wait_info
-	,	[database_name]
-	,	[host_name]
-	,	login_name
-	,	[program_name]
-	,	sql_text
-	,	sql_command
-	,	tran_log_writes
-	,	CPU
-	,	tempdb_allocations
-	,	tempdb_current
-	,	reads
-	,	writes
-	,	physical_reads
-	,	query_plan
-	,	used_memory
-	,	tran_start_time
-	,	open_tran_count
-	,	percent_complete
-	,	additional_info
-	,	start_time
-	,	login_time
-	,	request_id
-	FROM
-		#resultstemp
-	;
+
+    INSERT INTO dbo.WhoIsActiveStats
+    (
+        collection_time
+      , session_id
+      , elapsed_time_s
+      , status
+      , blocking_session_id
+      , blocked_session_count
+      , wait_info
+      , database_name
+      , host_name
+      , login_name
+      , program_name
+      , sql_text
+      , sql_command
+      , tran_log_writes
+      , CPU
+      , tempdb_allocations
+      , tempdb_current
+      , reads
+      , writes
+      , physical_reads
+      , query_plan
+      , used_memory
+      , tran_start_time
+      , open_tran_count
+      , percent_complete
+      , additional_info
+      , start_time
+      , login_time
+      , request_id
+    )
+    SELECT
+        collection_time
+      , session_id
+      , DATEDIFF(second, start_time, collection_time) AS elapsed_time_s
+      , status
+      , blocking_session_id
+      , blocked_session_count
+      , wait_info
+      , database_name
+      , host_name
+      , login_name
+      , program_name
+      , sql_text
+      , sql_command
+      , tran_log_writes
+      , CPU
+      , tempdb_allocations
+      , tempdb_current
+      , reads
+      , writes
+      , physical_reads
+      , query_plan
+      , used_memory
+      , tran_start_time
+      , open_tran_count
+      , percent_complete
+      , additional_info
+      , start_time
+      , login_time
+      , request_id
+    FROM
+        #resultstemp;
 END;
 
 GO
+
+
