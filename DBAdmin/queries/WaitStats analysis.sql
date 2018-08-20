@@ -11,12 +11,24 @@ GO
 DECLARE @PeriodStart DATETIME
 	,	@PeriodEnd DATETIME;
 
-SET @PeriodStart = DATEADD(hour, -24, GETDATE());
+SET @PeriodStart = DATEADD(day, -7, GETDATE());
 SET @PeriodEnd = GETDATE();
 
 WITH WaitStatsForPeriod AS (
     SELECT
-        *
+        PeriodStart
+    ,   PeriodEnd
+    ,   WaitType
+    ,   Wait_S
+    ,   Resource_S
+    ,   Signal_S
+    ,   WaitCount
+    ,   Percentage
+    ,   AvgWait_S
+    ,   AvgRes_S
+    ,   AvgSig_S
+    ,   MIN(PeriodStart) OVER() AS ReportPeriodStart
+    ,   MAX(PeriodEnd) OVER() AS ReportPeriodEnd
     FROM
         dbo.WaitStats
     WHERE 
@@ -26,8 +38,8 @@ WITH WaitStatsForPeriod AS (
 ,   OverallPercentages AS (
     SELECT
         w.WaitType
-    ,   MIN(PeriodStart) AS PeriodStart
-    ,   MAX(PeriodEnd) AS PeriodEnd
+    ,   w.ReportPeriodStart
+    ,   w.ReportPeriodEnd
     ,   SUM(w.Wait_S) AS TotalWait_S
     ,   100.0 * SUM(w.Wait_S) / t.Wait_S AS PercentOfTotal
     FROM
@@ -39,6 +51,8 @@ WITH WaitStatsForPeriod AS (
     GROUP BY
         w.WaitType
     ,   t.Wait_S
+    ,   w.ReportPeriodStart
+    ,   w.ReportPeriodEnd
     )
 ,   WorstPeriodsPerWait AS (
     SELECT
@@ -51,8 +65,8 @@ WITH WaitStatsForPeriod AS (
         WaitStatsForPeriod
 )
 SELECT
-    op.PeriodStart
-,   op.PeriodEnd
+    op.ReportPeriodStart
+,   op.ReportPeriodEnd
 ,   op.WaitType
 ,   op.TotalWait_S
 ,   op.PercentOfTotal

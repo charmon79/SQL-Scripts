@@ -1,4 +1,6 @@
-DECLARE @period TINYINT = 3
+DECLARE @period TINYINT;
+
+SET @period = 1;
 /*
 	@period parameter options:
 		1 = past day
@@ -15,8 +17,8 @@ DECLARE @period TINYINT = 3
 
 /* script body begins */
 DECLARE
-    @periodStart DATETIME = NULL
-,   @periodEnd DATETIME = NULL
+    @periodStart DATETIME
+,   @periodEnd DATETIME
 
 SET @periodEnd = GETDATE();
 
@@ -47,7 +49,8 @@ WITH cteJobHistory AS (
               +   CAST((jh.run_duration / 100) % 100 AS VARCHAR(30)) -- minutes
               +   ':'
               +   CAST((jh.run_duration % 100) AS VARCHAR(30)) -- seconds
-            AS TIME(3)) AS duration_time
+            --AS TIME(3)) AS duration_time
+            AS datetime) AS duration_time
     ,   ROW_NUMBER() OVER (PARTITION BY jh.job_id ORDER BY jh.run_date DESC, jh.run_time DESC) AS LastRun
     FROM
         msdb.dbo.sysjobs AS j
@@ -104,42 +107,59 @@ WITH cteJobHistory AS (
         JOIN msdb.dbo.sysschedules AS sch
             ON sch.schedule_id = jsch.schedule_id
 )
+,   cteJobSummary AS (
+    SELECT
+        j.name AS [Job Name]
+    ,   CASE j.enabled WHEN 1 THEN 'Enabled' ELSE 'Disabled' END AS [Job Status]
+    ,   ISNULL(jsch.scheduled, 'No') AS [Is Scheduled]
+    ,	CASE WHEN j.notify_level_email > 1 AND j.notify_email_operator_id > 0 THEN 'Yes' ELSE 'No' END AS [Email Notify on Fail]
+    ,	CASE WHEN j.notify_level_eventlog > 1  THEN 'Yes' ELSE 'No' END AS [Event Log on Fail]
+    ,   @periodStart AS [Period Start]
+    ,   @periodEnd AS [Period End]
+    ,   CAST(DATEADD(ss, AVG(jh.duration_seconds),0) 
+        --AS TIME(3)) AS [Average Run Time]
+        AS DATETIME) AS [Average Run Time]
+    ,   MIN(jh.duration_time) AS [Shortest Run Time]
+    ,   MAX(jh.duration_time) AS [Longest Run Time]
+    ,   SUM(CASE WHEN jh.run_status = 0 THEN 1 ELSE 0 END) AS [Failed Runs]
+    ,   SUM(CASE WHEN jh.run_status = 1 THEN 1 ELSE 0 END) AS [Successful Runs]
+    ,   SUM(CASE WHEN jh.run_status = 2 THEN 1 ELSE 0 END) AS [Retried Runs]
+    ,   SUM(CASE WHEN jh.run_status = 3 THEN 1 ELSE 0 END) AS [Cancelled Runs]
+    ,   msdb.dbo.agent_datetime(jlr.run_date, jlr.run_time) AS [Last Run]
+    ,   jlr.last_run_status AS [Last Run Outcome]
+    FROM
+        msdb.dbo.sysjobs AS j
+        LEFT JOIN cteJobHistory AS jh
+            ON jh.job_id = j.job_id
+        LEFT JOIN cteJobLastRun AS jlr
+            ON jlr.job_id = j.job_id
+        LEFT JOIN cteJobSchedules AS jsch
+            ON jsch.job_id = j.job_id
+    WHERE 1=1
+	    --and j.name LIKE 'Collect%' or j.name like 'DBAdmin%'
+    GROUP BY 
+        CASE j.enabled
+            WHEN 1 THEN 'Enabled'
+            ELSE 'Disabled'
+        END
+    ,	CASE WHEN j.notify_level_email > 1 AND j.notify_email_operator_id > 0 THEN 'Yes' ELSE 'No' END
+    ,	CASE WHEN j.notify_level_eventlog > 1  THEN 'Yes' ELSE 'No' END
+    ,   msdb.dbo.agent_datetime(jlr.run_date, jlr.run_time)
+    ,   j.name
+    ,   jlr.last_run_status
+    ,   jsch.scheduled
+    HAVING
+        1=1
+	    --and SUM(CASE WHEN jh.run_status = 0 THEN 1 ELSE 0 END) > 0 -- show failed jobs only
+    --ORDER BY [Job Name]
+)
 SELECT
-    j.name AS [Job Name]
-,   CASE j.enabled WHEN 1 THEN 'Enabled' ELSE 'Disabled' END AS [Job Status]
-,   ISNULL(jsch.scheduled, 'No') AS [Is Scheduled]
-,	CASE WHEN j.notify_level_email > 1 AND j.notify_email_operator_id > 0 THEN 'Yes' ELSE 'No' END AS [Email Notify on Fail]
-,	CASE WHEN j.notify_level_eventlog > 1  THEN 'Yes' ELSE 'No' END AS [Event Log on Fail]
-,   @periodStart AS [Period Start]
-,   @periodEnd AS [Period End]
-,   CAST(DATEADD(ss, AVG(jh.duration_seconds),0) AS TIME(3)) AS [Average Run Time]
-,   MIN(jh.duration_time) AS [Shortest Run Time]
-,   MAX(jh.duration_time) AS [Longest Run Time]
-,   SUM(CASE WHEN jh.run_status = 0 THEN 1 ELSE 0 END) AS [Failed Runs]
-,   SUM(CASE WHEN jh.run_status = 1 THEN 1 ELSE 0 END) AS [Successful Runs]
-,   SUM(CASE WHEN jh.run_status = 2 THEN 1 ELSE 0 END) AS [Retried Runs]
-,   SUM(CASE WHEN jh.run_status = 3 THEN 1 ELSE 0 END) AS [Cancelled Runs]
-,   msdb.dbo.agent_datetime(jlr.run_date, jlr.run_time) AS [Last Run]
-,   jlr.last_run_status AS [Last Run Outcome]
+    *
 FROM
-    msdb.dbo.sysjobs AS j
-    LEFT JOIN cteJobHistory AS jh
-        ON jh.job_id = j.job_id
-    LEFT JOIN cteJobLastRun AS jlr
-        ON jlr.job_id = j.job_id
-    LEFT JOIN cteJobSchedules AS jsch
-        ON jsch.job_id = j.job_id
-
-GROUP BY 
-    CASE j.enabled
-        WHEN 1 THEN 'Enabled'
-        ELSE 'Disabled'
-    END
-,	CASE WHEN j.notify_level_email > 1 AND j.notify_email_operator_id > 0 THEN 'Yes' ELSE 'No' END
-,	CASE WHEN j.notify_level_eventlog > 1  THEN 'Yes' ELSE 'No' END
-,   msdb.dbo.agent_datetime(jlr.run_date, jlr.run_time)
-,   j.name
-,   jlr.last_run_status
-,   jsch.scheduled
-ORDER BY [Job Name]
+    cteJobSummary
+WHERE
+    [Failed Runs] > 0
+    OR [Retried Runs] > 0
+ORDER BY
+    [Job Name]
 ;
