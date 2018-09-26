@@ -1,4 +1,4 @@
-USE XcelWebReport_Prod;
+USE CADNCEPRD;
 GO
 
 WITH
@@ -8,7 +8,13 @@ WITH
     ,   QUOTENAME(i.name) AS IndexName
     ,   i.index_id
     ,   CASE WHEN i.index_id = 1 THEN 'CLUSTERED' ELSE 'NONCLUSTERED' END AS IndexType
-    ,   CASE i.is_unique WHEN 1 THEN 'UNIQUE' ELSE '' END AS IsUnique
+    ,   i.is_unique AS IsUnique
+    ,   CASE i.is_unique WHEN 1 THEN 'UNIQUE' ELSE '' END AS UniqueSQL
+    ,   CASE
+            WHEN ius.user_updates > 1 AND (ius.user_seeks + ius.user_scans + ius.user_lookups) = 0 THEN 0
+            ELSE 1
+        END AS IsUsed
+    ,   ius.user_updates AS UserUpdates
     ,   IndexDef = '(' + STUFF( (SELECT ',' + c.name 
                    FROM sys.index_columns AS ic
                         JOIN sys.columns AS c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
@@ -29,15 +35,26 @@ WITH
         sys.objects AS o
         JOIN sys.schemas AS s ON s.schema_id = o.schema_id
         JOIN sys.indexes AS i ON i.object_id = o.object_id
+        JOIN sys.dm_db_index_usage_stats AS ius ON ius.object_id = i.object_id AND ius.index_id = i.index_id
     WHERE
-        i.index_id > 0
-        AND o.type = 'V'
+        o.is_ms_shipped = 0
+        AND i.index_id > 0
 )
 SELECT
-    DropSQL = 'DROP INDEX '+cte.IndexName+' ON '+cte.ObjectName+';'
-,   CreateSQL = 'CREATE '+cte.IsUnique+' '+cte.IndexType+' INDEX '+cte.IndexName+' ON '+cte.ObjectName+' '+cte.IndexDef+';'
+    ObjectName
+,   IndexName
+,   IndexType
+,   IsUnique
+,   IsUsed
+,   UserUpdates
+,   DisableSQL = 'ALTER INDEX '+cte.IndexName+' ON '+cte.ObjectName+' DISABLE;'
+,   DropSQL = 'DROP INDEX '+cte.IndexName+' ON '+cte.ObjectName+';'
+,   CreateSQL = 'CREATE '+cte.UniqueSQL+' '+cte.IndexType+' INDEX '+cte.IndexName+' ON '+cte.ObjectName+' '+cte.IndexDef+';'
 FROM
     cteIndexes AS cte
+WHERE
+    IndexType = 'NONCLUSTERED' AND IsUsed = 0
+    and IsUnique = 0 -- avoid disabling nonclustered PKs by mistake
 ORDER BY 
     cte.ObjectName
 ,   cte.index_id
