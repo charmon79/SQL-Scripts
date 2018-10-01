@@ -2,7 +2,7 @@
 --Database Backups for all databases For Previous Week 
 --------------------------------------------------------------------------------- 
 DECLARE @numdays int;
-SET @numdays = 30;
+SET @numdays = 2;
 
 WITH backups AS (
 SELECT
@@ -69,9 +69,9 @@ SELECT
 ,   physical_device_name
 FROM
     backups
-WHERE
-    device_type not in (7) -- ignore VSS backups
-    AND database_name = 'CADNCEPRD'
+WHERE 1=1
+    --device_type not in (7) -- ignore VSS backups
+    --AND database_name = 'CADNCEPRD'
     AND type = 'D'
 ORDER BY
     backup_start_date desc
