@@ -42,7 +42,7 @@ BEGIN
             FROM sys.sql_modules sm
             JOIN sys.objects o ON o.object_id = sm.object_id
             JOIN sys.schemas s ON s.schema_id = o.schema_id
-            WHERE sm.definition LIKE ''%'+@server+'.%'' OR sm.definition LIKE ''%\['+@server+'\]%'' ESCAPE ''\'';
+            WHERE sm.definition LIKE ''%'+@server+'.%'' OR sm.definition LIKE ''%|['+@server+'|]%'' ESCAPE ''|'';
         ';
 
         --print @sql;
