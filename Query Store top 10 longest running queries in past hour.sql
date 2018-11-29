@@ -9,7 +9,7 @@ SELECT
     qry.query_hash
 ,   txt.query_sql_text
 ,   pl.query_plan_hash
-,   pl.query_plan
+,   CAST(pl.query_plan AS XML) aS query_plan
 ,   qry.query_parameterization_type_desc
 ,   qry.last_execution_time
 ,   qry.avg_compile_duration
@@ -54,7 +54,7 @@ SELECT
     qry.query_hash
 ,   txt.query_sql_text
 ,   pl.query_plan_hash
-,   pl.query_plan
+,   CAST(pl.query_plan AS XML) aS query_plan
 ,   qry.query_parameterization_type_desc
 ,   qry.last_execution_time
 ,   qry.avg_compile_duration
