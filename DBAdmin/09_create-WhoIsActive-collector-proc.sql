@@ -8,6 +8,9 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
+IF OBJECT_ID('dbo.Collect_WhoIsActive') IS NULL
+  EXEC('CREATE PROCEDURE dbo.Collect_WhoIsActive AS RETURN;');
+GO
 ALTER PROCEDURE [dbo].[Collect_WhoIsActive]
 AS
 

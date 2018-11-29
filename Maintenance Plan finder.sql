@@ -45,6 +45,7 @@ WHERE
     ,   'Collect Database Storage Stats'
     ,   'Collect sp_WhoIsActive'
     ,   'Collect Wait Stats'
+    ,   'sp_cycle_errorlog'
     )
 ORDER BY
     j.name

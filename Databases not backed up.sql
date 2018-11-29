@@ -9,6 +9,9 @@ FROM
 	JOIN sys.database_recovery_status AS drs ON drs.database_id = d.database_id
 	LEFT JOIN msdb.dbo.backupset AS fb ON fb.database_guid = drs.database_guid and fb.type = 'D'
 	LEFT JOIN msdb.dbo.backupset AS lb ON lb.database_guid = drs.database_guid and lb.type = 'L'
+WHERE
+    d.name in ('master','model','msdb')
+    and cast(serverproperty('edition') as nvarchar(128)) not like 'Express%'
 GROUP BY
 	d.name
 ,	d.recovery_model_desc
