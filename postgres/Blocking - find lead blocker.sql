@@ -1,11 +1,12 @@
 WITH cte_blocked AS (
-SELECT blocked_locks.pid         AS blocked_pid,
+SELECT 
+     blocked_locks.pid         AS blocked_pid,
        blocked_activity.usename  AS blocked_user,
-	   now() - blocked_activity.query_start
-		                         AS blocked_duration,
+     now() - blocked_activity.query_start
+                             AS blocked_duration,
        blocking_locks.pid        AS blocking_pid,
        blocking_activity.usename AS blocking_user,
-	   now() - blocking_activity.query_start
+     now() - blocking_activity.query_start
                                  AS blocking_duration,
        blocked_activity.query    AS blocked_statement,
        blocking_activity.query   AS blocking_statement
@@ -27,22 +28,24 @@ JOIN pg_catalog.pg_locks AS blocking_locks
 JOIN pg_catalog.pg_stat_activity AS blocking_activity
     ON blocking_activity.pid = blocking_locks.pid
 WHERE 
-	NOT blocked_locks.granted
+  NOT blocked_locks.granted
 )
 select
-	a.*
-,	NOW() - a.xact_start AS xact_duration
-,	NOW() - a.state_change AS time_in_state
+  'LEAD BLOCKER' AS Blocking_Status
+, NOW() - a.xact_start AS xact_duration
+, NOW() - a.state_change AS time_in_state
+, cte.blocked_count
+, a.*
 FROM
-	pg_stat_database db
-	JOIN pg_stat_activity a ON a.datid = db.datid
+  pg_stat_database db
+  JOIN pg_stat_activity a ON a.datid = db.datid
+  JOIN (
+    SELECT blocking_pid, count(1) as blocked_count
+    FROM cte_blocked
+    GROUP BY blocking_pid
+  ) cte ON cte.blocking_pid = a.pid
 WHERE 1=1
-	--AND a.xact_start <= NOW() - INTERVAL '20 minutes'
-	AND NOT a.waiting
-	AND EXISTS (
-		SELECT *
-		FROM cte_blocked cte
-		WHERE cte.blocking_pid = a.pid
-	)
+  --AND a.xact_start <= NOW() - INTERVAL '20 minutes'
+  AND NOT a.waiting
 order by xact_duration desc
 ;
