@@ -35,7 +35,12 @@ select
 , NOW() - a.xact_start AS xact_duration
 , NOW() - a.state_change AS time_in_state
 , cte.blocked_count
-, a.*
+, a.datname
+, a.pid
+, a.client_addr
+, a.waiting
+, a.state
+, a.query
 FROM
   pg_stat_database db
   JOIN pg_stat_activity a ON a.datid = db.datid
