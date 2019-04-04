@@ -14,7 +14,12 @@ CREATE TABLE #results (
 ,   ObjectDefinition nvarchar(max)
 );
 
-/* for each server in sys.servers, look for references within SQL modules in each db */
+/*
+    For each server in sys.servers, look for references within SQL modules in each db.
+    
+    Specifically NOT filtering only for linked servers here, because we also want to see
+    if there are 4-part-name references to things on the local SQL Server instance.    
+*/
 DECLARE cur_servers CURSOR LOCAL FAST_FORWARD FOR
     SELECT name
     FROM sys.servers;

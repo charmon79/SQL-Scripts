@@ -19,5 +19,3 @@ WHERE EXISTS (
     )
 ORDER BY s.name, t.name
 ;
-
-sp_help 'branch'

@@ -1,6 +1,3 @@
-USE XcelWeb_Prod;
-GO
-
 DECLARE @databaseName sysname
     ,   @newDatabaseName sysname
     ,   @filegroupID INT

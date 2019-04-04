@@ -12,30 +12,30 @@ go
 reconfigure 
 go 
 
--- make display name for sent emails look like ServerName <noreply@rtsfinancial.com>
+-- make display name for sent emails look like ServerName <noreply@foo.com>
 DECLARE @display_name nvarchar(128) = cast(serverproperty('ServerName') as nvarchar(128))
  
 -------------------------------------------------------------------------------------------------- 
--- BEGIN Mail Settings Shamrock Mail Profile 
+-- BEGIN Mail Settings
 -------------------------------------------------------------------------------------------------- 
-IF NOT EXISTS(SELECT * FROM msdb.dbo.sysmail_profile WHERE  name = 'Shamrock Mail Profile')  
+IF NOT EXISTS(SELECT * FROM msdb.dbo.sysmail_profile WHERE  name = 'SQL Agent Mail Profile')  
   BEGIN 
-    --CREATE Profile [Shamrock Mail Profile] 
+    --CREATE Profile
     EXECUTE msdb.dbo.sysmail_add_profile_sp 
-      @profile_name = 'Shamrock Mail Profile', 
+      @profile_name = 'SQL Agent Mail Profile', 
       @description  = ''; 
   END --IF EXISTS profile 
    
-  IF NOT EXISTS(SELECT * FROM msdb.dbo.sysmail_account WHERE  name = 'Shamrock SMTP') 
+  IF NOT EXISTS(SELECT * FROM msdb.dbo.sysmail_account WHERE  name = 'SQL Agent SMTP') 
   BEGIN 
-    --CREATE Account [Shamrock SMTP] 
+    --CREATE Account
     EXECUTE msdb.dbo.sysmail_add_account_sp 
-    @account_name            = 'Shamrock SMTP', 
-    @email_address           = 'noreply@rtsfinancial.com', 
+    @account_name            = 'SQL Agent SMTP', 
+    @email_address           = 'noreply@foo.com', 
     @display_name            = '', 
     @replyto_address         = '', 
     @description             = '', 
-    @mailserver_name         = 'smtp.ryanrts.com', 
+    @mailserver_name         = 'smtp.foo.com', 
     @mailserver_type         = 'SMTP', 
     @port                    = '25', 
     @username                =  NULL , 
@@ -48,12 +48,12 @@ IF NOT EXISTS(SELECT *
               FROM msdb.dbo.sysmail_profileaccount pa 
                 INNER JOIN msdb.dbo.sysmail_profile p ON pa.profile_id = p.profile_id 
                 INNER JOIN msdb.dbo.sysmail_account a ON pa.account_id = a.account_id   
-              WHERE p.name = 'Shamrock Mail Profile' 
-                AND a.name = 'Shamrock SMTP')  
+              WHERE p.name = 'SQL Agent Mail Profile' 
+                AND a.name = 'SQL Agent SMTP')  
   BEGIN 
-    -- Associate Account [Shamrock SMTP] to Profile [Shamrock Mail Profile] 
+    -- Associate Account
     EXECUTE msdb.dbo.sysmail_add_profileaccount_sp 
-      @profile_name = 'Shamrock Mail Profile', 
-      @account_name = 'Shamrock SMTP', 
+      @profile_name = 'SQL Agent Mail Profile', 
+      @account_name = 'SQL Agent SMTP', 
       @sequence_number = 1 ; 
   END  

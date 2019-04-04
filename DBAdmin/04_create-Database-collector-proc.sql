@@ -47,7 +47,7 @@ BEGIN
 	,	StateDesc = du.StateDesc
 	,	LastSeenOnline = ISNULL(du.LastSeenOnline, d.LastSeenOnline)
 	,	IsReadOnly = du.IsReadOnly
-	,	LastUserAccessTime = du.LastUserAccessTime
+	,	LastUserAccessTime = ISNULL(du.LastUserAccessTime, d.LastUserAccessTime)
 	FROM
 		dbo.Databases AS d
 		JOIN #Databases AS du ON du.DatabaseName = d.DatabaseName

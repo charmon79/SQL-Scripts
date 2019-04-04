@@ -1,5 +1,3 @@
-USE XDB;
-GO
 
 SELECT
     s.name AS [schema]

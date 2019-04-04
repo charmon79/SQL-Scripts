@@ -1,5 +1,3 @@
-USE XPRT
-
 SELECT
     DB_NAME() AS [Database]
 ,   s.name AS [Schema]
@@ -25,9 +23,6 @@ SELECT
 ,   c.is_rowguidcol AS [IsRowGUID]
 ,   dc.definition AS [DefaultValue]
 ,   CASE c.default_object_id WHEN 0 THEN 0 ELSE 1 END AS HasDefault
-,   '' AS [Ignore for XRS]
-,   '' AS [XRS Table]
-,   '' AS [XRS Column]
 ,   '' AS Comments
 FROM
     sys.tables AS t

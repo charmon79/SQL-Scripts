@@ -157,8 +157,8 @@ FROM
     cteJobSummary
 WHERE
 	1=1
-    --AND [Failed Runs] > 0 OR [Retried Runs] > 0
-    --AND [Last Run Outcome] <> 'Success'
+    AND ([Failed Runs] > 0 OR [Retried Runs] > 0)
+    AND [Last Run Outcome] <> 'Success'
 ORDER BY
     [Job Name]
 ;

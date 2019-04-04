@@ -2,7 +2,7 @@
 --Database Backups for all databases For Previous Week 
 --------------------------------------------------------------------------------- 
 DECLARE @numdays int;
-SET @numdays = 2;
+SET @numdays = 1;
 
 WITH backups AS (
 SELECT
@@ -44,7 +44,7 @@ GROUP BY
     database_name
 ,   backup_type
 --*/
-SELECT
+SELECT top 50
     database_name
 ,   backup_start_date
 ,   backup_finish_date
@@ -71,8 +71,9 @@ FROM
     backups
 WHERE 1=1
     --device_type not in (7) -- ignore VSS backups
-    --AND database_name = 'CADNCEPRD'
-    AND type = 'D'
+    AND database_name = 'DBAdmin'
+    AND type = 'L'
 ORDER BY
     backup_start_date desc
+    --compressed_backup_size desc
 ;
