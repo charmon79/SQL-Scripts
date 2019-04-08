@@ -1,8 +1,5 @@
 -- CREATE EXTENSION pgstattuple; -- need this to analyse logical b-tree fragmentation
 
-select * from pgstattuple(21679);
-select * from pgstatindex(21679);
-
 select
     c.oid
 ,   am.amname
@@ -24,7 +21,10 @@ from
 WHERE 1=1
     AND c.reltype = 0 -- indexes
     AND ns.nspname not in ('pg_catalog','pg_toast')
-limit 100
+    AND c.relpages >= 10
+ORDER BY
+    i.leaf_fragmentation desc
+-- LIMIT 100
 ;
 
 
