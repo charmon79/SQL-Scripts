@@ -3,7 +3,7 @@ GO
 
 DECLARE @TopN int = 10
 
--- top 10 longest running queries in the past hour
+-- top 10 longest running queries in the past day with > 5 executions
 SELECT
     --TOP 10
     qry.query_hash
@@ -43,7 +43,15 @@ FROM
             rs.*
         FROM sys.query_store_runtime_stats_interval AS rsi
             JOIN sys.query_store_runtime_stats AS rs ON rs.runtime_stats_interval_id = rsi.runtime_stats_interval_id
-        WHERE end_time >= DATEADD(hour, -1, GETDATE())
+        WHERE
+            end_time >= DATEADD(hour, -1, GETDATE())
+            AND rs.count_executions > 5
+            --AND rs.plan_id not in (
+            --    select pl2.plan_id
+            --    from sys.query_store_plan pl2
+            --        join sys.query_store_query qry2 ON qry2.query_id = pl2.query_id
+            --    where qry2.query_hash in (0x7C0B8414B9D904B3)
+            --)
         ORDER BY avg_duration desc, stdev_duration desc
     ) AS qrs ON qrs.plan_id = pl.plan_id
 ;
